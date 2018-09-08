@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Hobby Gifs</title>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+  <style type="text/css">
+    button,
+    div,
+    form,
+    input {
+      margin: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="jumbotron" style="background-color: lightgrey; color: white; text-align: center;">
+    <h1 style="color:black;">Hobby Gifs</h1>
+  </div>
+    <!-- Rendered buttons will get dumped here  -->
+    <div id="buttons-view"></div>
+
+    <form id="hobbies-form">
+      <label for="hobbies-input">Add a hobby:</label>
+      <input type="text" id="hobbies-input"><br>
+
+      <!-- Button triggers new hobby to be added -->
+      <input id="add-hobby" type="submit" value="Click to add" class="btn btn-danger">
+    </form>
+
+    <!-- hobbies will get dumped here -->
+    <div id="hobby-view"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script type="text/javascript">
+    
+      // Initial array of hobbies
+      var hobbies = ["camping", "guitar", "book reading", "climbing", "whiskey"];
+      // displayHobbyInfo function re-renders the HTML to display the appropriate content
+      function displayHobbyInfo() {
+        var hobby = $(this).attr("data-name");
+        var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + hobby + "&api_key=fDhJEA5Qw9YCRlirAy12LthCaixvU0N1&limit=05";
+        
+        // Creates AJAX call for the specific movie button being clicked
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        }).done(function(response) {
+          console.log(response);
+          // creat a for loop that will go through the array and create multiple gifs
+          var results = response.data;
+          for (var i = 0; i < results.length; i++) {
+          // Creates a div to hold the hobby gifs
+
+          // Retrieves the Rating Data
+          var rating = results[i].rating;
+          // Creates an element to have the rating displayed
+          var p = $("<p>")
+            p.text("Rating: " + rating);
+          var hobbyGif = $("<img>");
+          
+          var searchDiv = $('<div class="search-item">');  
+          var animated = results[i].images.fixed_height.url;
+          var still = results[i].images.fixed_height_still.url;
+          hobbyGif.attr('src', still);
+          hobbyGif.attr('data-still', still);
+          hobbyGif.attr('data-animated', animated);
+          hobbyGif.attr('data-state', 'still');
+          hobbyGif.addClass('searchImage');
+          searchDiv.append(p);
+          searchDiv.append(hobbyGif);
+          // Displays the rating
+          // $("#hobby-view").prepend(pOne);
+          $("#hobby-view").prepend(searchDiv);
+          // Appends the image
+          // Puts the entire hobby gif above the previous gifs.
+          // $("#hobby-view").prepend(hobbyDiv);
+        }
+        });
+        $("img").on("click", function() {
+          $(this).attr
+        });
+      }
+      // Function for displaying hobby data
+      function renderButtons() {
+        // Deletes the hobbies prior to adding new hobbies
+        // (this is necessary otherwise you will have repeat buttons)
+        $("#buttons-view").empty();
+        // Loops through the array of movies
+        for (var i = 0; i < hobbies.length; i++) {
+          // Then dynamicaly generates buttons for each hobby in the array
+          // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+          var a = $("<button>");
+          a.addClass('btn btn-primary');
+          // Adds a class of hobby_class to our button
+          a.addClass("hobby_class");
+          // Added a data-attribute
+          a.attr("data-name", hobbies[i]);
+          // Provided the initial button text
+          a.text(hobbies[i]);
+          // Added the button to the buttons-view div
+          $("#buttons-view").append(a);
+        }
+      }
+      //setup the click for animate and still
+      $(document).on("click", ".searchImage", function(){
+        var state = $(this).attr("data-state");
+        if (state == "still") {
+          $(this).attr("src", $(this).data("animated"));
+          $(this).attr("data-state", "animated");
+        }
+        else {
+          $(this).attr("src", $(this).data("still"));
+          $(this).attr("data-state", "still");          
+        }
+      })      
+      // This function handles events where the add hobby button is clicked
+      $("#add-hobby").on("click", function(event) {
+        event.preventDefault();
+        // This line of code will grab the input from the textbox
+        var newHobby = $("#hobbies-input").val().trim();
+        // The hobby from the textbox is then added to our array
+        hobbies.push(newHobby);
+        // Calling renderButtons which handles the processing of our hobby array
+        renderButtons();
+      });
+      // Adding click event listeners to all elements with a class of ""
+      $(document).on("click", ".hobby_class", displayHobbyInfo);
+      // Calling the renderButtons function to display the intial buttons
+      renderButtons();
+    </script>
+  </div>
+</body>
+
+</html>
